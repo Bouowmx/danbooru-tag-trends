@@ -1,0 +1,14 @@
+<html>
+<head>
+<title>Danbooru Tag Trends</title>
+</head>
+<body>
+<h2>Top 100 Tags</h2>
+<table border="1">
+	<tr><th>Wiki</th><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>
+	{ % for tag in tags % }
+		<tr><td><center><a href="%the wiki page%">?</a></center></td><td><a href="%the post listing with tag%">{{tag["name"]}}</a></td><td>{{tag["post_count"][0]}}</td><td>% Percent of total posts</td></tr>
+	{ % end for % }
+</table>
+</body>
+</html>
