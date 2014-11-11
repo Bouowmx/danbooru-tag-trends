@@ -1,0 +1,14 @@
+<html>
+<head>
+<title>Danbooru Tag Trends</title>
+</head>
+<body>
+<h2>Top 100 Tags</h2>
+<table border="1">
+	<tr><th>Wiki</th><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>
+	{% for tag in tags %}
+		<tr><td><center><a href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a></center></td><td><a href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}">{{tag["name"]}}</a></td><td>{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>
+	{% endfor %}
+</table>
+</body>
+</html>
