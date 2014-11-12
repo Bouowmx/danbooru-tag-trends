@@ -1,14 +1,55 @@
+<!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
+<style>
+	* {font-family: Verdana, Helvetica, Arial, sans-serif; font-size: 98%}
+	a {text-decoration: none}
+	a.general:hover {color: hsl(213, 100%, 75%)}
+	a.general:link {color: hsl(213, 100%, 50%)}
+	a.general:visited {color: hsl(213, 100%, 50%)}
+	a.artist:hover {color: hsl(0, 38%, 57%)}
+	a.artist:link {color: hsl(0, 100%, 33%)}
+	a.artist:visited {color: hsl(0, 100%, 33%)}
+	a.copyright:hover {color: hsl(300, 38%, 57%)}
+	a.copyright:link {color: hsl(300, 100%, 33%)}
+	a.copyright:visited {color: hsl(300, 100%, 33%)}
+	a.character:hover {color: hsl(120, 38%, 57%)}
+	a.character:link {color: hsl(120, 100%, 33%)}
+	a.character:visited {color: hsl(120, 100%, 33%)}
+	table, td, th {border: 1px solid black; padding: 2px}
+	table {border-collapse: collapse}
+	td, th {padding: 2px; vertical-align: top; white-space: nowrap}
+</style>
 <title>Danbooru Tag Trends</title>
 </head>
 <body>
-<h2>Top 100 Tags</h2>
-<table border="1">
-	<tr><th>Wiki</th><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>
-	{% for tag in tags %}
-		<tr><td><center><a href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a></center></td><td><a href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}">{{tag["name"]}}</a></td><td>{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>
-	{% endfor %}
+Click on the ? to view the Danbooru wiki page about that tag.<br><br>
+<table>
+	<tr><th colspan="5">Top 100</th></tr>
+	<tr><th>Tags</th><th>General Tags</th><th>Artists</th><th>Copyrights</th><th>Characters</th></tr>
+	<tr>
+		<td><table>
+			<tr><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>{% for tag in tags %}
+			<tr><td><a class="{{"general" if (tag["category"] == 0) else "artist" if (tag["category"] == 1) else "copyright" if (tag["category"] == 3) else "character" if (tag["category"] == 4) else "general"}}" href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a> <a class="{{"general" if (tag["category"] == 0) else "artist" if (tag["category"] == 1) else "copyright" if (tag["category"] == 3) else "character" if (tag["category"] == 4) else "general"}}" href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}">{{tag["name"]}}</a></td><td style="text-align: right">{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>{% endfor %}
+		</table></td>
+		<td><table>
+			<tr><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>{% for tag in tags_general %}
+			<tr><td><a class="general" href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a> <a class="general" href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}">{{tag["name"]}}</a></td><td style="text-align: right">{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>{% endfor %}
+		</table></td>
+		<td><table>
+			<tr><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>{% for tag in tags_artist %}
+			<tr><td><a class="artist" href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a> <a class="artist" href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}">{{tag["name"]}}</a></td><td style="text-align: right">{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>{% endfor %}
+		</table></td>
+		<td><table>
+			<tr><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>{% for tag in tags_copyright %}
+			<tr><td><a class="copyright" href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a> <a class="copyright" href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}">{{tag["name"]}}</a></td><td style="text-align: right">{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>{% endfor %}
+		</table></td>
+		<td><table>
+			<tr><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>{% for tag in tags_character %}
+			<tr><td><a class="character" href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a> <a class="character" href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}">{{tag["name"]}}</a></td><td style="text-align: right">{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>{% endfor %}
+		</table></td>
+	</tr>
 </table>
 </body>
 </html>
