@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+	* {font-family: Verdana, Helvetica, Arial, sans-serif; font-size: 100%} /*<!--Setting font size to 98% will make the table to appear to have font size equal to 80%-->*/
+	a {text-decoration: none}
+	a.general:link {color: hsl(213, 100%, 50%)}
+	a.general:visited {color: hsl(213, 100%, 50%)}
+	a.general:hover {color: hsl(213, 100%, 75%)}
+	a.artist:link {color: hsl(0, 100%, 33%)}
+	a.artist:visited {color: hsl(0, 100%, 33%)}
+	a.artist:hover {color: hsl(0, 38%, 57%)}
+	a.copyright:link {color: hsl(300, 100%, 33%)}
+	a.copyright:visited {color: hsl(300, 100%, 33%)}
+	a.copyright:hover {color: hsl(300, 38%, 57%)}
+	a.character:link {color: hsl(120, 100%, 33%)}
+	a.character:visited {color: hsl(120, 100%, 33%)}
+	a.character:hover {color: hsl(120, 38%, 57%)}
+	table, td, th {border: 1px solid black; padding: 2px}
+	table {border-collapse: collapse}
+	td, th {padding: 2px; vertical-align: top; white-space: nowrap}
+</style>
+<title>Danbooru Tag Trends</title>
+</head>
+<body>
+<p style="font-size: 80%">Click "?" to view the Danbooru wiki page about that tag. Click the tag to view the most-recent posts with that tag.<br><br>
+Safe: {{'''<a class="general" href="/top/safe">off</a>'''|safe if not safe else '''<a class="general" href="/top">on</a>'''|safe}}<br>
+Click "on"/"off" to switch mode. "Safe: on" means clicking a tag will only show posts with the safe rating. This does not guarantee that the post is actually safe.<br></p>
+<table style="font-size: 80%">
+	<tr><th colspan="5">Top 100</th></tr>
+	<tr><th>Tags</th><th>General Tags</th><th>Artists</th><th>Copyrights</th><th>Characters</th></tr>
+	<tr>
+		<!--<td style="padding: 0px"><table style="border-style: hidden">-->
+		<td><table>
+			<tr><th>#</th><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>{% set i = 1 %}{% for tag in tags %}
+			<tr><td style="text-align: right">{{i}}</td><td><a class="{{"general" if (tag["category"] == 0) else "artist" if (tag["category"] == 1) else "copyright" if (tag["category"] == 3) else "character" if (tag["category"] == 4) else "general"}}" href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a> <a class="{{"general" if (tag["category"] == 0) else "artist" if (tag["category"] == 1) else "copyright" if (tag["category"] == 3) else "character" if (tag["category"] == 4) else "general"}}" href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}{{"+rating:safe" if safe else ""}}">{{tag["name"]}}</a></td><td style="text-align: right">{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>{% set i = i + 1 %}{% endfor %}
+		</table></td>
+		<td><table>
+			<tr><th>#</th><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>{% set i = 1 %}{% for tag in tags_general %}
+			<tr><td style="text-align: right">{{i}}</td><td><a class="general" href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a> <a class="general" href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}{{"+rating:safe" if safe else ""}}">{{tag["name"]}}</a></td><td style="text-align: right">{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>{% set i = i + 1 %}{% endfor %}
+		</table></td>
+		<td><table>
+			<tr><th>#</th><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>{% set i = 1 %}{% for tag in tags_artist %}
+			<tr><td style="text-align: right">{{i}}</td><td><a class="artist" href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a> <a class="artist" href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}{{"+rating:safe" if safe else ""}}">{{tag["name"]}}</a></td><td style="text-align: right">{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>{% set i = i + 1 %}{% endfor %}
+		</table></td>
+		<td><table>
+			<tr><th>#</th><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>{% set i = 1 %}{% for tag in tags_copyright %}
+			<tr><td style="text-align: right">{{i}}</td><td><a class="copyright" href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a> <a class="copyright" href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}{{"+rating:safe" if safe else ""}}">{{tag["name"]}}</a></td><td style="text-align: right">{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>{% set i = i + 1 %}{% endfor %}
+		</table></td>
+		<td><table>
+			<tr><th>#</th><th>Tag</th><th>Post Count</th><th>% of Total Posts</th></tr>{% set i = 1 %}{% for tag in tags_character %}
+			<tr><td style="text-align: right">{{i}}</td><td><a class="character" href="http://danbooru.donmai.us/wiki_pages/show_or_new?title={{tag["name"]}}">?</a> <a class="character" href="http://danbooru.donmai.us/posts?tags={{tag["name"]}}{{"+rating:safe" if safe else ""}}">{{tag["name"]}}</a></td><td style="text-align: right">{{tag["post_count"][0]}}</td><td>{{100.0 * tag["post_count"][0] / total_posts}}</td></tr>{% set i = i + 1 %}{% endfor %}
+		</table></td>
+	</tr>
+</table>
+</body>
+</html>

@@ -5,73 +5,34 @@ danbooru_login = "Bouowmx"
 danbooru_api_key = "BFVfdHX247_49YwdJznRRvo6dusI6fiEaZIMtW9AO-4"
 database_username = "Bouowmx"
 database_password = "MarisaKirisame"
+database = pymongo.MongoClient("mongodb://" + database_username + ":" + database_password + "@ds051110.mongolab.com:51110/danbooru_tags")["danbooru_tags"]
 
 @app.route("/")
-def top_100():
-	tags = database_connection()["danbooru_tags"]["tags"].find(limit = 100, sort = [("post_count", pymongo.DESCENDING)])
-	tags_general = database_connection()["danbooru_tags"]["tags"].find({"category": 0}, limit = 100, sort = [("post_count", pymongo.DESCENDING)])
-	tags_artist = database_connection()["danbooru_tags"]["tags"].find({"category": 1}, limit = 100, sort = [("post_count", pymongo.DESCENDING)])
-	tags_copyright = database_connection()["danbooru_tags"]["tags"].find({"category": 3}, limit = 100, sort = [("post_count", pymongo.DESCENDING)])
-	tags_character = database_connection()["danbooru_tags"]["tags"].find({"category": 4}, limit = 100, sort = [("post_count", pymongo.DESCENDING)])
-	total_posts = json.load(urllib2.urlopen("http://danbooru.donmai.us/posts.json?login=" + danbooru_login + "&api_key=" + danbooru_api_key))[0]["id"]
-	return flask.render_template("home.html", tags = tags, tags_general = tags_general, tags_artist = tags_artist, tags_copyright = tags_copyright, tags_character = tags_character, total_posts = total_posts)
+def home():
+	return flask.render_template("home.html")
 
-def database_connection():
-	return pymongo.MongoClient("mongodb://" + database_username + ":" + database_password + "@ds051110.mongolab.com:51110/danbooru_tags")
+@app.route("/search")
+def search():
+	if (flask.request.args.get("name") == None):
+		return flask.render_template("search.html")
+	else:
+		# results = json.load(urllib2.urlopen("http://danbooru.donmai.us/login=" + danbooru_login + "&api_key=" + danbooru_api_key + "&search[name_matches]=" + flask.request.args.get("name") + ("&search[category]=" + flask.request.args.get("category")) if (flask.request.args.get("category") != "all") else "" + "&search[hide_empty]=yes&search[order]=" + flask.request.args.get("order") + "&search[has_wiki]=" + flask.request.args.get("has_wiki"))
+		#if (flask.request.args.get("exact") == None):
+			#database["tags"].find({"name": {"$regex": flask.request.args.get("name")}}, limit = 1000, sort = [("post_count", pymongo.DESCENDING) if flask.request.args.get("
+		pass
 
-def tags_aliases_update():
-	connection = pymongo.MongoClient("")
-	collection = connection["danbooru_tags"]["tags"]
-	collection_aliases = connection["danbooru_tags"]["tags_aliases_pending"]
-	#Check if currently pending aliases in database have become active
-	aliases = collection_aliases.find()
-	i = 0
-	while (i < aliases.count()):
-		alias = json.load(urllib2.urlopen("http://danbooru.donmai.us/tag_aliases.json?login=" + danbooru_login + "&api_key=" + danbooru_api_key + "&search[antecedent_name]=" + aliases[i]["antecedent_name"]))
-		if (alias["status"] == "active"):
-			#ADD THIS LINE!!!!! ADD THIS LINE!!! -> delete alias from database
-			tag = collection.find_one({"name": aliases[i]["antecedent_name"]})
-			collection.update({"name": aliases[i]["antecedent_name"]}, {"name": alias["consequent_name"], "post_count": tag["post_count"], "category": tag["category"]})
-	#Add pending aliases
-	i = 0
-	while (True):
-		aliases = json.load(urllib2.urlopen("http://danbooru.donmai.us/tag_aliases.json?login=" + danbooru_login + "&api_key=" + danbooru_api_key + "&limit=1000&page=" + str(i)))
-		if (aliases == []):
-			break
-		active_reached = False
-		for alias in aliases:
-			if (alias["status"] == "active"):
-				active_reached = True
-				break
-			collection_aliases.update({"antecedent_name": alias["antecedent_name"]}, {"antecedent_name": alias["antecedent_name"], "consequent_name": alias["consequent_name"]}, upsert = True)
-		if (active_reached):
-			break
-	pass
+@app.route("/top")
+def top_100(safe = False):
+	tags = database["tags"].find(limit = 100, sort = [("post_count", pymongo.DESCENDING)])
+	tags_general = database["tags"].find({"category": 0}, limit = 100, sort = [("post_count", pymongo.DESCENDING)])
+	tags_artist = database["tags"].find({"category": 1}, limit = 100, sort = [("post_count", pymongo.DESCENDING)])
+	tags_copyright = database["tags"].find({"category": 3}, limit = 100, sort = [("post_count", pymongo.DESCENDING)])
+	tags_character = database["tags"].find({"category": 4}, limit = 100, sort = [("post_count", pymongo.DESCENDING)])
+	return flask.render_template("top.html", safe = safe, tags = tags, tags_general = tags_general, tags_artist = tags_artist, tags_copyright = tags_copyright, tags_character = tags_character, total_posts = database["post_count"].find_one()["post_count"][0])
 
-def tags_update(num_processes):
-	processes = []
-	i = 1
-	while (i <= num_processes): #Each process requires maximum 9.5 MB of RAM.
-		processes.append(multiprocessing.Process(target = tags_update_child, args = (i, num_processes)))
-		processes[i - 1].start()
-		i += 1
-	print "Time elapsed: " + str(t2 - t1) + " s"
-
-def tags_update_child(page, increment):
-	collection = database_connection()["danbooru_tags"]["tags"]
-	while (True):
-		tags = json.load(urllib2.urlopen("http://danbooru.donmai.us/tags.json?login=" + danbooru_login + "&api_key=" + danbooru_api_key + "&search[order]=count&limit=1000&page=" + str(page)))
-		if (page == []):
-			return
-		for tag in tags:
-			cursor = collection.find({"name": tag["name"]})
-			post_count = []
-			if (cursor.count() > 0):
-				post_count = cursor[0]["post_count"]
-			#post_count.append(tag["post_count"])
-			post_count = [tag["post_count"]] + post_count
-			collection.update({"name": tag["name"]}, {"name": tag["name"], "post_count": post_count, "created_at": tag["created_at"][:tag["created_at"].index("T")] if tag["created_at"] is not None else None, "category": tag["category"]}, upsert = True)
-		page += increment
+@app.route("/top/safe")
+def top_100_safe():
+	return top_100(safe = True)
 
 if (__name__ == "__main__"):
 	app.run(debug = True, port = 9001)
